@@ -1,12 +1,15 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+
 contact_controller:
     path: /contact
     controller: App\Controller\ContactController::loadTemplate
+
 home_controller:
     path: /home
     controller: App\Controller\HomeController::loadTemplate
+
 company_controller:
     path: /company
     controller: App\Controller\CompanyController::loadTemplate
