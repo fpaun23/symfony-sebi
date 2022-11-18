@@ -2,7 +2,9 @@
 
 {% block body %}
     <body>
-        <h1>{{ page_title }}: Welcome to {{ name }}</h1>
-     
+        <h1> Welcome! </h1>
+        {% if form is defined and form is not null %}
+            <h1> {{ form(form) }}</h1>
+        {% endif %}
     </body>
 {% endblock %}
