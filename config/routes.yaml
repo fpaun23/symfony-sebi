@@ -14,3 +14,6 @@ company_controller:
     path: /company
     controller: App\Controller\CompanyController::loadTemplate
 
+company_controller_add:
+    path: /company/add
+    controller: App\Controller\CompanyController::addCompany

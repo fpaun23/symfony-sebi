@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -26,44 +27,49 @@ class CompanyController extends AbstractController
     {
         $this->logger=$logger;
     }
-
+    
     /**
-     * Loads the template for the company controller
+     * loadTemplate
      *
      * @return Response
      */
     public function loadTemplate(): Response
     {
+        return $this->render('company/index.html.twig');
+    }
+
+     /**
+     * loadTemplate
+     *
+     * @param  mixed $request
+     * @return Response
+     */
+    public function addCompany(Request $request): Response
+    {
         $this->form = $this->createFormBuilder()
-        ->add('name', TextType::class)
-        ->add('description', TextType::class)
-        ->add('Add', SubmitType::class)
-        ->getForm();
+            ->add('name', TextType::class)
+            ->add('description', TextType::class)
+            ->add('Add', SubmitType::class)
+            ->getForm();
+   
+        $this->form->handleRequest($request);
+
+        if ($this->form->isSubmitted() && $this->form->isValid()) {
+
+            $submittedData = $this->form->getData();
+            $name = $submittedData['name'];
+            $description = $submittedData['description'];
+    
+            $this->logger->error(
+                "Datele au fost salvate",
+                [json_encode(['company_name' => $name, 'company_description' => $description])]
+            );
+            
+            return $this->redirectToRoute('company_controller');
+        }
 
         return $this->render('company/index.html.twig', [
             'form'=>$this->form->createView()
         ]);
-    }
-    public function addCompany()
-    {
-        if ($this->form->isSubmitted() && $this->form->isValid()) {
-            $this->name = $this->form->getData();
-            $this->description = $this->form->getData();
-            $this->data = $this->form->all();
-            $this->logger->notice("Datele au fost salvate", [$this->name, $this->description]);
-            return $this->render('company/index.html.twig', [
-                'form'=>$this->form->createView()
-            ]);
-        } else {
-            $this->logger->error("Completati campurile!");
-            $this->form=$this->createFormBuilder()
-            ->add($this->data)
-            -getForm();
-
-            return $this->render('company/index.html.twig', [
-            'form'=>$this->form->createView()
-            
-            ]);
-        }
     }
 }
