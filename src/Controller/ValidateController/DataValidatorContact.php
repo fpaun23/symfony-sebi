@@ -13,6 +13,12 @@ use App\Controller\ValidateController\DataValidatorInterface;
 class DataValidatorContact implements DataValidatorInterface
 {
     private $errorMesage = "";
+    /**
+     * check if the data is valid
+     *
+     * @param  mixed $validator
+     * @return bool
+     */
     public function contactValidate(array $validator):bool
     {
         
@@ -20,20 +26,25 @@ class DataValidatorContact implements DataValidatorInterface
         if ((strlen($validator[0]) < ConstantContact::NAME[0]
         || strlen($validator[0]) > ConstantContact::NAME[1]
         || !preg_match("/^[a-zA-Z]+$/", $validator[0]))) {
-            $this->errorMesage =  ConstantContact::MSGNAME;
+            $this->errorMesage = $this->errorMesage . ConstantContact::MSGNAME  ;
         }
-        if (!filter_var($validator[1], FILTER_VALIDATE_EMAIL)) {
-            $this->errorMesage =  ConstantContact::MSGMAIL;
+        if (!filter_var($validator[2], FILTER_VALIDATE_EMAIL)) {
+            $this->errorMesage = $this->errorMesage . ConstantContact::MSGMAIL ;
         }
-        if ((strlen($validator[2]) < ConstantContact::DESCRIPTION[0]
-        || strlen($validator[2]) > ConstantContact::DESCRIPTION[1])) {
-            $this->errorMesage =  ConstantContact::MSGDESC;
+        if ((strlen($validator[1]) < ConstantContact::DESCRIPTION[0]
+        || strlen($validator[1]) > ConstantContact::DESCRIPTION[1])) {
+            $this->errorMesage = $this->errorMesage . ConstantContact::MSGDESC ;
         }
 
         if (empty($this->errorMesage)) {
             return true;
         } return false;
     }
+    /**
+     * Displays the errors
+     *
+     * @return string
+     */
     public function err(): string
     {
         return $this->errorMesage;

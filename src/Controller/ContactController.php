@@ -22,7 +22,17 @@ class ContactController extends AbstractController
     private $logger;
 
     private $validator;
-    
+    private $name = "";
+    private $description = "";
+    private $email = "";
+        
+    /**
+     * __construct
+     *
+     * @param  mixed $logger
+     * @param  mixed $validator
+     * @return void
+     */
     public function __construct(LoggerInterface $logger, DataValidatorInterface $validator)
     {
         $this->logger=$logger;
@@ -39,19 +49,28 @@ class ContactController extends AbstractController
         return $this->render('contact/index.html.twig', [
             'page_title'=>$this->page_title,
             'error_msg' =>$this->error_msg,
+            'name' =>$this->name,
+            'description' => $this->description,
+            'email' => $this->email
         ]);
     }
-
+    
+    /**
+     * Ads the data in the form in a json or displays the errors
+     *
+     * @param  mixed $request
+     * @return Response
+     */
     public function addContact(Request $request): Response
     {
-        $name = $request->request->get('name');
-        $description = $request->request->get('description');
-        $email = $request->request->get('email');
-        $validate = $this->validator->contactValidate([$name, $description, $email]);
+        $this->name = $request->request->get('name');
+        $this->description = $request->request->get('description');
+        $this->email = $request->request->get('email');
+        $validate = $this->validator->contactValidate([$this->name, $this->description, $this->email]);
         if ($validate == true) {
             $this->logger->notice(
                 "Your information has been submitted)",
-                [json_encode(['name' => $name,' email' => $email, 'description' => $description])]
+                [json_encode(['name' => $this->name, 'email' => $this->email, 'description' => $this->description])]
             );
             return $this->redirectToRoute('contact_controller');
         } else {
@@ -59,6 +78,9 @@ class ContactController extends AbstractController
             return $this->render('contact/index.html.twig', [
                 'page_title'=>$this->page_title,
                 'error_msg' =>$this->error_msg,
+                'name' =>$this->name,
+                'description' => $this->description,
+                'email' => $this->email
             ]);
         }
     }
