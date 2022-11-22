@@ -7,6 +7,6 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 interface DataValidatorInterface
 {
-    public function contactValidate(ClassMetadata $validator);
-
+    public function contactValidate(array $validator):bool;
+    public function err():string;
 }

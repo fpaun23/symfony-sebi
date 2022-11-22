@@ -5,11 +5,11 @@
         <h1>{{ page_title }}</h1>
      <form action="{{ path('contact_controller_add') }}" method="post">
   <label for="name">Name:</label><br>
-  <input type="text" id="name" name="name" value=""><br>
+  <input type="text" id="name" name="name" value={{ (error_msg) ? '' : "" }}><br>
   <label for="description">Description:</label><br>
-  <input type="text" id="description" name="description" value=""><br>
+  <input type="text" id="description" name="description" value={{ (error_msg) ? '' : "" }}><br>
   <label for "email">Email:</label><br>
-  <input type="text" id="email" name="email" value=""><br><br>
+  <input type="text" id="email" name="email" value={{ (error_msg) ? '' : "" }}><br><br>
   <input type="submit" value="Submit">
 </form> 
     </body>

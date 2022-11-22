@@ -70,6 +70,7 @@ class CompanyController extends AbstractController
 
         return $this->render('company/index.html.twig', [
             'form'=>$this->form->createView()
+            
         ]);
     }
 }
