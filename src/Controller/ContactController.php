@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Psr\Log\LoggerInterface;
+use App\Controller\ValidateController\DataValidatorInterface;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 /**
  * new class for contact controller
@@ -13,7 +18,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class ContactController extends AbstractController
 {
     public $page_title = 'Contact Controller';
-    public $user = 'Sebastian';
+    
+
+    private $logger;
+    private $validator;
+    private ClassMetaData $valid;
+    public function __construct(LoggerInterface $logger, DataValidatorInterface $validator)
+    {
+        $this->logger=$logger;
+        $this->validator=$validator;
+    }
     
     /**
      * Loads the template for the Contact controller
@@ -23,8 +37,15 @@ class ContactController extends AbstractController
     public function loadTemplate(): Response
     {
         return $this->render('contact/index.html.twig', [
-            'user' =>$this->user,
             'page_title'=>$this->page_title,
         ]);
+    }
+
+    public function addContact(Request $request): Response
+    {
+        
+     
+       
+        return $this->loadTemplate();
     }
 }
