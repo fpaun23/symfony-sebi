@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\ValidateController;
-
-use Symfony\Component\Validator\Mapping\ClassMetadata;
+namespace App\Service;
 
 interface DataValidatorInterface
 {

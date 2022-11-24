@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\ValidateController;
+namespace App\Service;
 
 use App\ConstantContact;
-use App\Controller\ContactController;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Controller\ValidateController\DataValidatorInterface;
+use App\Service\DataValidatorInterface;
 
 class DataValidatorContact implements DataValidatorInterface
 {
