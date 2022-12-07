@@ -82,7 +82,8 @@ class CompanyRepository extends ServiceEntityRepository
 
         $companyByName = $queryBuilder
             ->select('c.name')
-            ->where("c.name = $name")
+            ->where("c.name = :companyName")
+            ->setParameter('companyName', $name)
             ->getQuery()
             ->getResult()
         ;
@@ -96,6 +97,7 @@ class CompanyRepository extends ServiceEntityRepository
         $companyByName = $queryBuilder
             ->select('c.name')
             ->where('c.name LIKE :name')
+            ->setParameter('name', '%' . $name . '%')
             ->getQuery()
             ->getResult()
         ;

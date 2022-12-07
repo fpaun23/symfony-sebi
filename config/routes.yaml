@@ -7,36 +7,36 @@ company_controller:
     controller: App\Controller\CompanyController::loadTemplate
 
 company_controller_add:
-    path: /company/addCompany
+    path: /company/add
     controller: App\Controller\CompanyController::addCompany
     methods: POST
 
 company_controller_read:
-    path: /company/readCompany/
+    path: /company/list/
     controller: App\Controller\CompanyController::readCompany
     methods: GET
 
 company_controller_readbyid:
-    path: /company/readCompany/id/{id}
+    path: /company/{id}
     controller: App\Controller\CompanyController::readCompanyByID
     methods: GET
 
 company_controller_readbyName:
-    path: /company/readCompany/name/{name}
+    path: /company/name/{name}
     controller: App\Controller\CompanyController::readCompanyByName
     methods: GET
 
 company_controller_readbyNameLike:
-    path: /company/readCompany/like/{name}
+    path: /company/like/{name}
     controller: App\Controller\CompanyController::readCompanyByNameLike
     methods: GET
 
 company_controller_update:
-    path: /company/updateCompany/{id}
+    path: /company/update/{id}
     controller: App\Controller\CompanyController::updateCompany
     methods: PUT
 
 company_controller_delete:
-    path: /company/deleteCompany/{id}
+    path: /company/delete/{id}
     controller: App\Controller\CompanyController::deleteCompany
     methods: DELETE

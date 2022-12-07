@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Repository\CompanyRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,22 +29,6 @@ class CompanyController extends AbstractController
         $this->companyRepository = $companyRepository;
     }
     
-    /**
-     * loadTemplate
-     *
-     * @return Response
-     */
-    public function loadTemplate(): Response
-    {
-        return $this->render('company/index.html.twig');
-    }
-   
-    /**
-     * add a company to the database
-     *
-     * @param  mixed $request
-     * @return Response
-     */
     public function addCompany(Request $request): Response
     {
         $company = new Company();
@@ -146,6 +129,4 @@ class CompanyController extends AbstractController
             'deleted' => !empty($deletedId),
         ]);
     }
-
-    
 }
