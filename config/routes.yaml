@@ -12,8 +12,23 @@ company_controller_add:
     methods: POST
 
 company_controller_read:
-    path: /company/readCompany
+    path: /company/readCompany/
     controller: App\Controller\CompanyController::readCompany
+    methods: GET
+
+company_controller_readbyid:
+    path: /company/readCompany/id/{id}
+    controller: App\Controller\CompanyController::readCompanyByID
+    methods: GET
+
+company_controller_readbyName:
+    path: /company/readCompany/name/{name}
+    controller: App\Controller\CompanyController::readCompanyByName
+    methods: GET
+
+company_controller_readbyNameLike:
+    path: /company/readCompany/like/{name}
+    controller: App\Controller\CompanyController::readCompanyByNameLike
     methods: GET
 
 company_controller_update:
@@ -22,6 +37,6 @@ company_controller_update:
     methods: PUT
 
 company_controller_delete:
-    path: /company/dgieleteCompany/{id}
+    path: /company/deleteCompany/{id}
     controller: App\Controller\CompanyController::deleteCompany
     methods: DELETE

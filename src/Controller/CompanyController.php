@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Company;
+use App\Repository\CompanyRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Psr\Log\LoggerInterface;
 
 /**
  * new class for company controller
@@ -21,15 +18,16 @@ use Psr\Log\LoggerInterface;
 class CompanyController extends AbstractController
 {
 
-    public $form;
-    public $name;
-    public $description;
-    public $data;
-    private $logger;
-    
-    public function __construct(LoggerInterface $logger)
+    private CompanyRepository $companyRepository;
+    /**
+     * __construct
+     *
+     * @param  mixed $companyRepository
+     * @return void
+     */
+    public function __construct(CompanyRepository $companyRepository)
     {
-        $this->logger=$logger;
+        $this->companyRepository = $companyRepository;
     }
     
     /**
@@ -41,87 +39,113 @@ class CompanyController extends AbstractController
     {
         return $this->render('company/index.html.twig');
     }
-
-     /**
-     * loadTemplate
+   
+    /**
+     * add a company to the database
      *
      * @param  mixed $request
      * @return Response
      */
-    // public function addCompany(Request $request): Response
-    // {
-    //     $this->form = $this->createFormBuilder()
-    //         ->add('name', TextType::class)
-    //         ->add('description', TextType::class)
-    //         ->add('Add', SubmitType::class)
-    //         ->getForm();
-   
-    //     $this->form->handleRequest($request);
-
-    //     if ($this->form->isSubmitted() && $this->form->isValid()) {
-
-    //         $submittedData = $this->form->getData();
-    //         $name = $submittedData['name'];
-    //         $description = $submittedData['description'];
-    
-    //         $this->logger->error(
-    //             "Datele au fost salvate",
-    //             [json_encode(['company_name' => $name, 'company_description' => $description])]
-    //         );
-            
-    //         return $this->redirectToRoute('company_controller');
-    //     }
-
-    //     return $this->render('company/index.html.twig', [
-    //         'form'=>$this->form->createView()
-            
-    //     ]);
-    // }
-    public function addCompany(ManagerRegistry $doctrine): Response
+    public function addCompany(Request $request): Response
     {
-        $entityManager = $doctrine->getManager();
-
         $company = new Company();
-        $company->setName('CompanyName');
-        $entityManager->persist($company);
-        $entityManager->flush();
+        $company->setName($request->get('name'));
+        $companySaved = $this->companyRepository->save($company);
+        return new JsonResponse(
+            [
+                'Saved new company' => $companySaved
+            ]
+        );
+    }
+    
+    /**
+     * get all companies from the database
+     *
+     * @param  mixed $doctrine
+     * @return Response
+     */
+    public function readCompany(): Response
+    {
 
-        return new Response('Saved new company with id '.$company->getId());
-    }
-    public function readCompany(ManagerRegistry $doctrine): Response
-    {
-        $company = $doctrine->getRepository(Company::class)->findAll();
-        return new Response(json_encode($company));
-    }
-    public function updateCompany(ManagerRegistry $doctrine, int $id): Response
-    {
-        $updateId = null;
-        $entityManager = $doctrine->getManager();
-        $company = $entityManager->getRepository(Company::class)->find($id);
-        if (!empty($company)) {
-            $updateId = $company->getId();
-            $company->setName('.NetDev');
-            $entityManager->flush();
-        }
+        $rows = $this->companyRepository->select();
         return new JsonResponse([
-            'update' => !empty($updateId),
-            'updateId' => $updateId
+            $rows
         ]);
     }
-    public function deleteCompany(ManagerRegistry $doctrine, int $id): Response
+    /**
+     * gets the company by the ID
+     *
+     * @param  mixed $id
+     * @return Response
+     */
+    public function readCompanyByID(int $id): Response
+    {
+
+        $rows = $this->companyRepository->selectById($id);
+        return new JsonResponse([
+            $rows
+        ]);
+    }
+    /**
+     * gets the company by the Name
+     *
+     * @param  mixed $name
+     * @return Response
+     */
+    public function readCompanyByName(string $name): Response
+    {
+
+        $rows = $this->companyRepository->selectByName($name);
+        return new JsonResponse([
+            $rows
+        ]);
+    }
+    
+    public function readCompanyByNameLike(string $name): Response
+    {
+
+        $rows = $this->companyRepository->selectByNameLike($name);
+        return new JsonResponse([
+            $rows
+        ]);
+    }
+    /**
+     * updates a company from the database
+     *
+     * @param  mixed $id
+     * @param  mixed $request
+     * @return Response
+     */
+    public function updateCompany(int $id, Request $request): Response
+    {
+        $requestParams = $request->query->all();
+        $updateResult = $this->companyRepository->update($id, $requestParams);
+
+        return new JsonResponse(
+            [
+                'rows_updated'=> $updateResult
+            ]
+        );
+    }
+    /**
+     * delete a company from the database
+     *
+     * @param  mixed $id
+     * @return Response
+     */
+    public function deleteCompany(int $id): Response
     {
         $deletedId = null;
-        $entityManager = $doctrine->getManager();
-        $company = $entityManager->getRepository(Company::class)->find($id);
-        if (!empty($company)) {
-            $deletedId = $company->getId();
-            $entityManager->remove($company);
-            $entityManager->flush();
+        $compToDelete = $this->companyRepository->find($id);
+        if (!empty($compToDelete)) {
+            $deletedId = $compToDelete;
+            $this->companyRepository->remove($compToDelete);
         }
 
         return new JsonResponse([
-            'detleted' => !empty($deletedId),
-            'deleteId' => $deletedId
+            'deleted' => !empty($deletedId),
         ]);
     }
+
+    
 }
