@@ -16,8 +16,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class CompanyController extends AbstractController
 {
-
     private CompanyRepository $companyRepository;
+
     /**
      * __construct
      *
@@ -28,7 +28,13 @@ class CompanyController extends AbstractController
     {
         $this->companyRepository = $companyRepository;
     }
-    
+        
+    /**
+     * add a company to the database
+     *
+     * @param  mixed $request
+     * @return Response
+     */
     public function addCompany(Request $request): Response
     {
         $company = new Company();
@@ -49,12 +55,12 @@ class CompanyController extends AbstractController
      */
     public function readCompany(): Response
     {
-
         $rows = $this->companyRepository->select();
         return new JsonResponse([
             $rows
         ]);
     }
+
     /**
      * gets the company by the ID
      *
@@ -63,12 +69,12 @@ class CompanyController extends AbstractController
      */
     public function readCompanyByID(int $id): Response
     {
-
         $rows = $this->companyRepository->selectById($id);
         return new JsonResponse([
             $rows
         ]);
     }
+
     /**
      * gets the company by the Name
      *
@@ -77,16 +83,20 @@ class CompanyController extends AbstractController
      */
     public function readCompanyByName(string $name): Response
     {
-
         $rows = $this->companyRepository->selectByName($name);
         return new JsonResponse([
             $rows
         ]);
     }
-    
+        
+    /**
+     * readCompanyByNameLike
+     *
+     * @param  mixed $name
+     * @return Response
+     */
     public function readCompanyByNameLike(string $name): Response
     {
-
         $rows = $this->companyRepository->selectByNameLike($name);
         return new JsonResponse([
             $rows
