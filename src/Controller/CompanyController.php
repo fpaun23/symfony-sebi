@@ -68,7 +68,7 @@ class CompanyController extends AbstractController
             );
         }
     }
-    
+
     /**
      * get all companies from the database
      *
@@ -113,7 +113,7 @@ class CompanyController extends AbstractController
             );
         }
     }
-    
+
     /**
      * gets the company by the Name
      *
@@ -142,7 +142,7 @@ class CompanyController extends AbstractController
             );
         }
     }
-        
+  
     /**
      * readCompanyByNameLike
      *
@@ -207,7 +207,7 @@ class CompanyController extends AbstractController
             );
         }
     }
-    
+
     /**
      * delete a company from the database
      *
