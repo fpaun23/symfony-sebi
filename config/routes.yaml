@@ -2,19 +2,6 @@ controllers:
     resource: ../src/Controller/
     type: attribute
 
-contact_controller:
-    path: /contact
-    controller: App\Controller\ContactController::loadTemplate
-
-contact_controller_add:
-    path: /contact/add
-    controller: App\Controller\ContactController::addContact
-    methods: POST
-    
-home_controller:
-    path: /home
-    controller: App\Controller\HomeController::loadTemplate
-
 company_controller:
     path: /company
     controller: App\Controller\CompanyController::loadTemplate
@@ -22,3 +9,34 @@ company_controller:
 company_controller_add:
     path: /company/add
     controller: App\Controller\CompanyController::addCompany
+    methods: POST
+
+company_controller_read:
+    path: /company/list/
+    controller: App\Controller\CompanyController::readCompany
+    methods: GET
+
+company_controller_readbyid:
+    path: /company/{id}
+    controller: App\Controller\CompanyController::readCompanyByID
+    methods: GET
+
+company_controller_readbyName:
+    path: /company/name/{name}
+    controller: App\Controller\CompanyController::readCompanyByName
+    methods: GET
+
+company_controller_readbyNameLike:
+    path: /company/like/{name}
+    controller: App\Controller\CompanyController::readCompanyByNameLike
+    methods: GET
+
+company_controller_update:
+    path: /company/update/{id}
+    controller: App\Controller\CompanyController::updateCompany
+    methods: PUT
+
+company_controller_delete:
+    path: /company/delete/{id}
+    controller: App\Controller\CompanyController::deleteCompany
+    methods: DELETE
