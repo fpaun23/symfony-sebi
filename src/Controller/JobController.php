@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use DateTimeImmutable;
 
 /**
  * new class for company controller
@@ -50,12 +51,23 @@ class JobController extends AbstractController
         try {
             $name = $request->get('name');
             $this->jobValidator->nameIsValid($name);
+
+            $companyId = (int) $request->get('company_id');
+            //get company entity if exists
+            $company = $this->companyRepository->find($companyId);
+  
+            //check if company exists
+            if (is_null($company)) {
+                throw new \InvalidArgumentException('Could not find company with id: ' . $companyId);
+            }
+
             $job = new Jobs();
             $job->setName($request->get('name'));
-            $companyId = $request->get('company_id');
-            $company = $this->companyRepository->find($companyId);
+            $job->setDescription($request->get('description'));
+            $job->setCreatedAt(new DateTimeImmutable());
             $job->setCompanyId($company);
             $jobSaved = $this->jobsRepository->save($job);
+
             return new JsonResponse(
                 [
                     'results' => [
