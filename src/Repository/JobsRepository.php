@@ -21,22 +21,87 @@ class JobsRepository extends ServiceEntityRepository
         parent::__construct($registry, Jobs::class);
     }
 
-    public function save(Jobs $entity, bool $flush = false): void
+    public function save(Jobs $entity): bool
     {
         $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        return $entity->getId() > 0;
     }
 
-    public function remove(Jobs $entity, bool $flush = false): void
+    public function remove(Jobs $entity): void
     {
         $this->getEntityManager()->remove($entity);
+        $this->getEntityManager()->flush();
+    }
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+    public function update(int $id, array $params): int
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $nbUpdatedRows = $queryBuilder->update()
+            ->set('j.name', ':jobName')
+            ->where('j.id = :jobId')
+            ->setParameter('jobName', $params['name'])
+            ->setParameter('jobId', $id)
+            ->getQuery()
+            ->execute();
+
+        return $nbUpdatedRows;
+    }
+
+    public function select(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $selectedRows = $queryBuilder
+            ->getQuery()
+            ->getArrayResult();
+
+        return $selectedRows;
+        
+    }
+
+    public function selectById(int $id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $jobById = $queryBuilder
+            ->select('j.name')
+            ->where("j.id = $id")
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $jobById;
+    }
+
+    public function selectByName(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $jobByName = $queryBuilder
+            ->select('j.name')
+            ->where("j.name = :jobName")
+            ->setParameter('jobName', $name)
+            ->getQuery()
+            ->getResult()
+        ;
+        return $jobByName;
+    }
+
+    public function selectByNameLike(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $jobByName = $queryBuilder
+            ->select('j.name')
+            ->where('j.name LIKE :name')
+            ->setParameter('name', '%' . $name . '%')
+            ->getQuery()
+            ->getResult()
+        ;
+        return $jobByName;
     }
 
 //    /**
