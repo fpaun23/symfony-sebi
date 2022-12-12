@@ -66,7 +66,7 @@ class Company
     {
         if ($this->jobs->removeElement($job)) {
             // set the owning side to null (unless already changed)
-            if ($job->getCompanyId() === $this) {
+            if ($job->getCompany() === $this) {
                 $job->setCompanyId(null);
             }
         }
