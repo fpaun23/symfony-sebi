@@ -20,7 +20,13 @@ class JobsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Jobs::class);
     }
-
+    
+    /**
+     * add to db
+     *
+     * @param  mixed $entity
+     * @return bool
+     */
     public function save(Jobs $entity): bool
     {
         $this->getEntityManager()->persist($entity);
@@ -28,13 +34,26 @@ class JobsRepository extends ServiceEntityRepository
 
         return $entity->getId() > 0;
     }
-
+    
+    /**
+     * delete from db
+     *
+     * @param  mixed $entity
+     * @return void
+     */
     public function remove(Jobs $entity): void
     {
         $this->getEntityManager()->remove($entity);
         $this->getEntityManager()->flush();
     }
-
+    
+    /**
+     * querry builder to update
+     *
+     * @param  mixed $id
+     * @param  mixed $params
+     * @return int
+     */
     public function update(int $id, array $params): int
     {
         $queryBuilder = $this->createQueryBuilder('j');
@@ -51,39 +70,54 @@ class JobsRepository extends ServiceEntityRepository
 
         return $nbUpdatedRows;
     }
-
+    
+    /**
+     * querry builder to select all
+     *
+     * @return array
+     */
     public function select(): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $selectedRows = $queryBuilder
             ->getQuery()
-            ->getArrayResult();
+            ->getResult();
 
         return $selectedRows;
-        
     }
-
+    
+    /**
+     * querry builder to select by ID
+     *
+     * @param  mixed $id
+     * @return array
+     */
     public function selectById(int $id): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $jobById = $queryBuilder
-            ->select('j.name')
-            ->where("j.id = $id")
+            ->where("j.id = :jobId")
+            ->setParameter('jobId', $id)
             ->getQuery()
             ->getResult()
         ;
 
         return $jobById;
     }
-
+    
+    /**
+     * querry builder to select by a name
+     *
+     * @param  mixed $name
+     * @return array
+     */
     public function selectByName(string $name): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $jobByName = $queryBuilder
-            ->select('j.name')
             ->where("j.name = :jobName")
             ->setParameter('jobName', $name)
             ->getQuery()
@@ -91,13 +125,18 @@ class JobsRepository extends ServiceEntityRepository
         ;
         return $jobByName;
     }
-
+    
+    /**
+     * querry builder to select every job with the name LIKE de string
+     *
+     * @param  mixed $name
+     * @return array
+     */
     public function selectByNameLike(string $name): array
     {
         $queryBuilder = $this->createQueryBuilder('j');
 
         $jobByName = $queryBuilder
-            ->select('j.name')
             ->where('j.name LIKE :name')
             ->setParameter('name', '%' . $name . '%')
             ->getQuery()
