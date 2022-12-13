@@ -47,6 +47,8 @@ class JobController extends AbstractController
      */
     public function addJob(Request $request): Response
     {
+        $active = 0;
+        $priority = 0;
         try {
             $name = $request->get('name');
             $this->jobValidator->nameIsValid($name);
@@ -62,6 +64,8 @@ class JobController extends AbstractController
             $job->setCompanyId($company);
             $job->setDescription($request->get('description'));
             $job->setCreatedAt(new DateTimeImmutable());
+            $job->setActive($active);
+            $job->setPriority($priority);
             $jobSaved = $this->jobsRepository->save($job);
             return new JsonResponse(
                 [
@@ -100,6 +104,8 @@ class JobController extends AbstractController
                 'id' => $job->getId(),
                 'name' => $job->getName(),
                 'description' => $job->getDescription(),
+                'active' => $job->getActive(),
+                'priortiy' => $job->getPriority(),
                 'createdAt' => $job->getCreatedAt(),
                 'company' => [
                     'id' => $job->getCompany()->getId(),
@@ -137,6 +143,8 @@ class JobController extends AbstractController
                     'id' => $job->getId(),
                     'name' => $job->getName(),
                     'description' => $job->getDescription(),
+                    'active' => $job->getActive(),
+                    'priortiy' => $job->getPriority(),
                     'createdAt' => $job->getCreatedAt(),
                     'company' => [
                         'id' => $job->getCompany()->getId(),
@@ -180,6 +188,8 @@ class JobController extends AbstractController
                     'id' => $job->getId(),
                     'name' => $job->getName(),
                     'description' => $job->getDescription(),
+                    'active' => $job->getActive(),
+                    'priortiy' => $job->getPriority(),
                     'createdAt' => $job->getCreatedAt(),
                     'company' => [
                         'id' => $job->getCompany()->getId(),
@@ -224,6 +234,8 @@ class JobController extends AbstractController
                     'id' => $job->getId(),
                     'name' => $job->getName(),
                     'description' => $job->getDescription(),
+                    'active' => $job->getActive(),
+                    'priortiy' => $job->getPriority(),
                     'createdAt' => $job->getCreatedAt(),
                     'company' => [
                         'id' => $job->getCompany()->getId(),
@@ -263,7 +275,10 @@ class JobController extends AbstractController
         try {
             $this->jobValidator->idIsValid($id);
             $name = $request->get('name');
-            $this->jobValidator->nameIsValid($name);
+            if (!empty($name)) {
+                $this->jobValidator->nameIsValid($name);
+            }
+            
             $requestParams = $request->query->all();
             $updateResult = $this->jobsRepository->update($id, $requestParams);
             return new JsonResponse(
@@ -296,17 +311,13 @@ class JobController extends AbstractController
     {
         try {
             $this->jobValidator->idIsValid($id);
-            $deletedId = null;
             $jobToDelete = $this->jobsRepository->find($id);
+            
             if (is_null($jobToDelete)) {
                 throw new \InvalidArgumentException('Could not find job with id: ' . $id);
             }
-            
-            if (!empty($jobToDelete)) {
-                $deletedId = $jobToDelete;
-                $this->jobsRepository->remove($jobToDelete);
-            }
 
+            $this->jobsRepository->remove($jobToDelete);
             return new JsonResponse([
                 'results' => [
                     'error' => false,
