@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Company;
 use App\Entity\Jobs;
 use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
@@ -316,12 +315,12 @@ class JobController extends AbstractController
             if (is_null($jobToDelete)) {
                 throw new \InvalidArgumentException('Could not find job with id: ' . $id);
             }
-
+            $deletedId = $jobToDelete->getId();
             $this->jobsRepository->remove($jobToDelete);
             return new JsonResponse([
                 'results' => [
                     'error' => false,
-                    'deleted' => !empty($deletedId),
+                    'job_deleted_id' => $deletedId,
                 ]
             ]);
         } catch (\Exception $e) {

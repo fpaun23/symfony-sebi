@@ -8,7 +8,7 @@ class JobValidator
 {
     public function nameIsValid(string $name): bool
     {
-        if ($name == null) {
+        if (empty($name)) {
             throw new \InvalidArgumentException('You must enter a job name!');
         }
 

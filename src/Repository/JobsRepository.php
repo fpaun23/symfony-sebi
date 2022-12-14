@@ -70,6 +70,14 @@ class JobsRepository extends ServiceEntityRepository
             $queryBuilder->set('j.description', ':jobDescription');
             $queryBuilder->setParameter('jobDescription', $params['description']);
         }
+        if (!empty($params['active'])) {
+            $queryBuilder->set('j.active', ':jobActive');
+            $queryBuilder->setParameter('jobActive', $params['active']);
+        }
+        if (!empty($params['priority'])) {
+            $queryBuilder->set('j.priority', ':jobPriority');
+            $queryBuilder->setParameter('jobPriority', $params['priority']);
+        }
 
          $nbUpdatedRows = $queryBuilder->getQuery()->execute();
 
