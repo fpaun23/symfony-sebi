@@ -71,3 +71,8 @@ job_controller_delete:
     path: /job/delete/{id}
     controller: App\Controller\JobController::deleteJob
     methods: DELETE    
+
+job_controller_bulk:
+    path: job/bulk
+    controller: App\Controller\JobController::bulk
+    methods: POST
