@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Entity\Jobs;
 use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
-use App\Service\FileReaderTXT;
+use App\Services\Jobs\JobsService;
 use App\Validator\JobValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,38 +20,37 @@ use DateTimeImmutable;
  */
 class JobController extends AbstractController
 {
+    private JobsRepository $jobsRepository;
+    private JobValidator $jobValidator;
+    private CompanyRepository $companyRepository;
+    private JobsService $jobsService;
 
-    private JobsRepository $_jobsRepository;
-    private JobValidator $_jobValidator;
-    private CompanyRepository $_companyRepository;
-    private FileReaderTXT $_fileReader;
-   
     /**
      * __construct
      *
-     * @param mixed $jobsRepository 
-     * @param mixed $jobValidator 
-     * @param mixed $companyRepository 
-     * 
+     * @param mixed $jobsRepository
+     * @param mixed $jobValidator
+     * @param mixed $companyRepository
+     *
      * @return void
      */
     public function __construct(
         JobsRepository $jobsRepository,
         JobValidator $jobValidator,
         CompanyRepository $companyRepository,
-        FileReaderTXT $fileReader
+        JobsService $jobsService
     ) {
-        $this->_jobsRepository = $jobsRepository;
-        $this->_jobValidator = $jobValidator;
-        $this->_companyRepository = $companyRepository;
-        $this->_fileReader = $fileReader;
+        $this->jobsRepository = $jobsRepository;
+        $this->jobValidator = $jobValidator;
+        $this->companyRepository = $companyRepository;
+        $this->jobsService = $jobsService;
     }
-        
+
     /**
      * Add job
      *
-     * @param mixed $request 
-     * 
+     * @param mixed $request
+     *
      * @return Response
      */
     public function addJob(Request $request): Response
@@ -60,10 +59,10 @@ class JobController extends AbstractController
         $priority = 0;
         try {
             $name = $request->get('name');
-            $this->_jobValidator->nameIsValid($name);
+            $this->jobValidator->nameIsValid($name);
             $companyId = (int) $request->get('company_id');
-            $company = $this->_companyRepository->find($companyId);
-            
+            $company = $this->companyRepository->find($companyId);
+
             if (is_null($company)) {
                 throw new \InvalidArgumentException(
                     'Could not find company with id: ' . $companyId
@@ -77,7 +76,7 @@ class JobController extends AbstractController
             $job->setCreatedAt(new DateTimeImmutable());
             $job->setActive($active);
             $job->setPriority($priority);
-            $jobSaved = $this->_jobsRepository->save($job);
+            $jobSaved = $this->jobsRepository->save($job);
             return new JsonResponse(
                 [
                     'results' => [
@@ -107,7 +106,7 @@ class JobController extends AbstractController
     {
         $jobsArr = [];
 
-        $rows = $this->_jobsRepository->select();
+        $rows = $this->jobsRepository->select();
 
         foreach ($rows as $job) {
             $jobsArr[] = [
@@ -120,7 +119,7 @@ class JobController extends AbstractController
                 'company' => [
                     'id' => $job->getCompany()->getId(),
                     'company' => $job->getCompany()->getName()
-                    
+
                 ]
             ];
         }
@@ -138,15 +137,15 @@ class JobController extends AbstractController
     /**
      * Gets the job by the ID
      *
-     * @param mixed $id 
-     * 
+     * @param mixed $id
+     *
      * @return Response
      */
     public function readJobsById(int $id): Response
     {
         try {
-            $this->_jobValidator->idIsValid($id);
-            $rows = $this->_jobsRepository->selectById($id);
+            $this->jobValidator->idIsValid($id);
+            $rows = $this->jobsRepository->selectById($id);
 
             $jobsArr = [];
             foreach ($rows as $job) {
@@ -167,7 +166,7 @@ class JobController extends AbstractController
             return new JsonResponse(
                 [
                 'results' => [
-                    'error' =>false,
+                    'error' => false,
                     'jobs' => $jobsArr
                 ]
                 ]
@@ -187,15 +186,15 @@ class JobController extends AbstractController
     /**
      * Gets the job by the Name
      *
-     * @param mixed $name 
-     * 
+     * @param mixed $name
+     *
      * @return Response
      */
     public function readJobsByName(string $name): Response
     {
         try {
-            $this->_jobValidator->nameIsValid($name);
-            $rows = $this->_jobsRepository->selectByName($name);
+            $this->jobValidator->nameIsValid($name);
+            $rows = $this->jobsRepository->selectByName($name);
             $jobsArr = [];
             foreach ($rows as $job) {
                 $jobsArr[] = [
@@ -208,7 +207,7 @@ class JobController extends AbstractController
                     'company' => [
                         'id' => $job->getCompany()->getId(),
                         'company' => $job->getCompany()->getName()
-                        
+
                     ]
                 ];
             }
@@ -216,7 +215,7 @@ class JobController extends AbstractController
             return new JsonResponse(
                 [
                 'results' => [
-                    'error' =>false,
+                    'error' => false,
                     'jobs' => $jobsArr
                 ]
                 ]
@@ -232,19 +231,19 @@ class JobController extends AbstractController
             );
         }
     }
-  
+
     /**
      * Read a job by the substring of the name
      *
-     * @param mixed $name 
-     *  
+     * @param mixed $name
+     *
      * @return Response
      */
     public function readJobsByNameLike(string $name): Response
     {
         try {
-            $this->_jobValidator->nameIsValid($name);
-            $rows = $this->_jobsRepository->selectByNameLike($name);
+            $this->jobValidator->nameIsValid($name);
+            $rows = $this->jobsRepository->selectByNameLike($name);
             $jobsArr = [];
             foreach ($rows as $job) {
                 $jobsArr[] = [
@@ -257,15 +256,15 @@ class JobController extends AbstractController
                     'company' => [
                         'id' => $job->getCompany()->getId(),
                         'company' => $job->getCompany()->getName()
-                        
+
                     ]
                 ];
             }
-            
+
             return new JsonResponse(
                 [
                 'results' => [
-                    'error' =>false,
+                    'error' => false,
                     'jobs' => $jobsArr
                 ]
                 ]
@@ -285,22 +284,22 @@ class JobController extends AbstractController
     /**
      * Updates a job from the database
      *
-     * @param mixed $id 
-     * @param mixed $request 
-     * 
+     * @param mixed $id
+     * @param mixed $request
+     *
      * @return Response
      */
     public function updateJob(int $id, Request $request): Response
     {
         try {
-            $this->_jobValidator->idIsValid($id);
+            $this->jobValidator->idIsValid($id);
             $name = $request->get('name');
             if (!empty($name)) {
-                $this->_jobValidator->nameIsValid($name);
+                $this->jobValidator->nameIsValid($name);
             }
-            
+
             $requestParams = $request->query->all();
-            $updateResult = $this->_jobsRepository->update($id, $requestParams);
+            $updateResult = $this->jobsRepository->update($id, $requestParams);
             return new JsonResponse(
                 [
                     'results' => [
@@ -324,21 +323,21 @@ class JobController extends AbstractController
     /**
      * Delete a job from the database
      *
-     * @param mixed $id 
-     * 
+     * @param mixed $id
+     *
      * @return Response
      */
     public function deleteJob(int $id): Response
     {
         try {
-            $this->_jobValidator->idIsValid($id);
-            $jobToDelete = $this->_jobsRepository->find($id);
-            
+            $this->jobValidator->idIsValid($id);
+            $jobToDelete = $this->jobsRepository->find($id);
             if (is_null($jobToDelete)) {
                 throw new \InvalidArgumentException('Could not find job with id: ' . $id);
             }
+
             $deletedId = $jobToDelete->getId();
-            $this->_jobsRepository->remove($jobToDelete);
+            $this->jobsRepository->remove($jobToDelete);
             return new JsonResponse(
                 [
                 'results' => [
@@ -359,33 +358,15 @@ class JobController extends AbstractController
         }
     }
 
+    /**
+     * Add/update/delete from txt file
+     *
+     * @param mixed $request
+     *
+     * @return Response
+     */
     public function bulk(Request $request): Response
     {
-        $jobsTxt = $this->_fileReader->_getData();
-        $delete = $request->get('delete');
-        if (!empty($delete && $delete == 1)) {
-            $jobsFind = $this->_jobsRepository->findAll();
-            $this->_jobsRepository->remove($jobsFind);
-        }
-
-        $update = $request->get('update');
-        if (!empty($update) && update == 1) {
-            $jobsFind = $this->_jobsRepository->findBy($jobsTxt);
-
-            if (!empty($jobsFind)) {
-                foreach ($jobsTXT as $job) {
-                    $job = $this->_jobsRepository->find($jobsTxt);
-                    $this->_jobsRepository->update();
-                }
-            } else {
-                $this->_jobsRepository->save($jobsTxt);
-            }
-            if (empty($delete) && (empty($update))) {
-                $this->_jobsRepository->save($jobsTxt);
-            }
-        }
+        $this->jobsService->saveBulkJobs();
     }
-
-   
-
 }

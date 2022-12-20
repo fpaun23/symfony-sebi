@@ -25,7 +25,7 @@ class JobValidator
         if ($id <= 0) {
             throw new \InvalidArgumentException("Id must be > 0");
         }
-        
+
         return true;
     }
 }
