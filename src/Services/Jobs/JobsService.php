@@ -34,10 +34,11 @@ class JobsService implements JobsServiceInterface
     public function saveBulkJobs(): bool
     {
         $jobs = $this->fileReader->getData();
+        
         $valid = $this->bulkValidator->isValid($jobs);
         var_dump($valid);
-        die;
-
+        die();
         return true;
+        
     }
 }

@@ -18,29 +18,29 @@ class FileReaderTXT implements FileReaderInterface
      */
     public function getData(): array
     {
-        if (!file_exists(self::FILE_PATH)) {
+        $data = [];
+
+        if (file_exists(self::FILE_PATH)) {
+            $lines = file(self::FILE_PATH, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+            if ($lines !== false) {
+                foreach ($lines as $jobs) {
+                    $job = explode(self::SEPARATOR, $jobs);
+                    $data[] = [
+                            'name' => $job[0],
+                            'company_id' => $job[1],
+                            'description' => $job[2],
+                            'active' => $job[3],
+                            'priority' => $job[4]
+                    ];
+                }
+                print_r($data);
+            } else {
+                throw new \Exception('Error reading file');
+            }
+        } else {
             throw new \Exception('File does not exist');
         }
-
-        $lines = file(self::FILE_PATH, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-        if ($lines == false) {
-            throw new \Exception('Error reading file');
-        }
-
-        foreach ($lines as $jobs) {
-            $job = explode(self::SEPARATOR, $jobs);
-            $readFile = [
-                'jobs' => [
-                    'name' => $job[0],
-                    'description' => $job[1],
-                    'priority' => $job[2],
-                    'active' => $job[3],
-                    'company_id' => $job[4]
-                ]
-            ];
-            print_r($readFile);
-        }
-        return $readFile;
+        return $data;
     }
 }
