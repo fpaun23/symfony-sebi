@@ -41,7 +41,6 @@ class FileReaderTXT implements FileReaderInterface
         } else {
             throw new \Exception('File does not exist');
         }
-        print_r($dataResponse);
         return $dataResponse;
     }
 }

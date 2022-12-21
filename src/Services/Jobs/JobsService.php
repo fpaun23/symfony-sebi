@@ -55,7 +55,7 @@ class JobsService implements JobsServiceInterface
         }
 
         foreach ($jobs['jobs'] as $dataJobs) {
-            if ($this->bulkValidator->isValid($jobs['jobs'])) {
+            if ($this->bulkValidator->isValid($dataJobs)) {
                 $company = $this->companyRepository->find($dataJobs['company_id']);
                 
                 if (empty($company)) {
@@ -70,6 +70,7 @@ class JobsService implements JobsServiceInterface
                 } else {
                     $this->validJobs++;
 
+                    
                     $job = new Jobs();
 
                     $job->setName($dataJobs['name']);
