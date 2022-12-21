@@ -6,5 +6,5 @@ namespace App\Services\Jobs;
 
 interface JobsServiceInterface
 {
-    public function saveBulkJobs(): bool;
+    public function saveBulkJobs(): array;
 }

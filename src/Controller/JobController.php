@@ -9,6 +9,7 @@ use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
 use App\Services\Jobs\JobsService;
 use App\Validator\JobValidator;
+use PharIo\Manifest\InvalidApplicationNameException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -367,6 +368,23 @@ class JobController extends AbstractController
      */
     public function bulk(Request $request): Response
     {
-        $this->jobsService->saveBulkJobs();
+        try {
+            $data = $this->jobsService->saveBulkJobs();
+
+            return new JsonResponse([
+                "total jobs" => $data["total jobs"],
+                "valid jobs" => $data["valid jobs"],
+                "invalid_ obs" => $data["invalid jobs"]
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse(
+                [
+                    'results' => [
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ]
+                ]
+            );
+        }
     }
 }

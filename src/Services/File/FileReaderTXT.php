@@ -18,7 +18,7 @@ class FileReaderTXT implements FileReaderInterface
      */
     public function getData(): array
     {
-        $data = [];
+        $dataResponse = [];
 
         if (file_exists(self::FILE_PATH)) {
             $lines = file(self::FILE_PATH, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -26,7 +26,8 @@ class FileReaderTXT implements FileReaderInterface
             if ($lines !== false) {
                 foreach ($lines as $jobs) {
                     $job = explode(self::SEPARATOR, $jobs);
-                    $data[] = [
+                    $dataResponse['jobs'][] =
+                    [
                             'name' => $job[0],
                             'company_id' => $job[1],
                             'description' => $job[2],
@@ -34,13 +35,13 @@ class FileReaderTXT implements FileReaderInterface
                             'priority' => $job[4]
                     ];
                 }
-                print_r($data);
             } else {
                 throw new \Exception('Error reading file');
             }
         } else {
             throw new \Exception('File does not exist');
         }
-        return $data;
+        print_r($dataResponse);
+        return $dataResponse;
     }
 }
