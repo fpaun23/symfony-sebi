@@ -2,10 +2,6 @@ controllers:
     resource: ../src/Controller/
     type: attribute
 
-company_controller:
-    path: /company
-    controller: App\Controller\CompanyController::loadTemplate
-
 company_controller_add:
     path: /company/add
     controller: App\Controller\CompanyController::addCompany
@@ -40,3 +36,38 @@ company_controller_delete:
     path: /company/delete/{id}
     controller: App\Controller\CompanyController::deleteCompany
     methods: DELETE
+
+job_controller_add:
+    path: /job/add
+    controller: App\Controller\JobController::addJob
+    methods: POST
+
+job_controller_read:
+    path: /job/list/
+    controller: App\Controller\JobController::readJobs
+    methods: GET
+
+job_controller_readbyid:
+    path: /job/{id}
+    controller: App\Controller\JobController::readJobsByID
+    methods: GET
+
+job_controller_readbyName:
+    path: /job/name/{name}
+    controller: App\Controller\JobController::readJobsByName
+    methods: GET
+
+job_controller_readbyNameLike:
+    path: /job/like/{name}
+    controller: App\Controller\JobController::readJobsByNameLike
+    methods: GET
+
+job_controller_update:
+    path: /job/update/{id}
+    controller: App\Controller\JobController::updateJob
+    methods: PUT
+
+job_controller_delete:
+    path: /job/delete/{id}
+    controller: App\Controller\JobController::deleteJob
+    methods: DELETE    
