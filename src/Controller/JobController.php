@@ -7,7 +7,9 @@ namespace App\Controller;
 use App\Entity\Jobs;
 use App\Repository\CompanyRepository;
 use App\Repository\JobsRepository;
+use App\Services\Jobs\JobsService;
 use App\Validator\JobValidator;
+use PharIo\Manifest\InvalidApplicationNameException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,29 +21,37 @@ use DateTimeImmutable;
  */
 class JobController extends AbstractController
 {
-
     private JobsRepository $jobsRepository;
     private JobValidator $jobValidator;
     private CompanyRepository $companyRepository;
-   
+    private JobsService $jobsService;
+
     /**
      * __construct
      *
-     * @param  mixed $companyRepository
-     * @param  mixed $companyValidator
+     * @param mixed $jobsRepository
+     * @param mixed $jobValidator
+     * @param mixed $companyRepository
+     *
      * @return void
      */
-    public function __construct(JobsRepository $jobsRepository, JobValidator $jobValidator, CompanyRepository $companyRepository)
-    {
+    public function __construct(
+        JobsRepository $jobsRepository,
+        JobValidator $jobValidator,
+        CompanyRepository $companyRepository,
+        JobsService $jobsService
+    ) {
         $this->jobsRepository = $jobsRepository;
         $this->jobValidator = $jobValidator;
         $this->companyRepository = $companyRepository;
+        $this->jobsService = $jobsService;
     }
-        
+
     /**
-     * add job
+     * Add job
      *
-     * @param  mixed $request
+     * @param mixed $request
+     *
      * @return Response
      */
     public function addJob(Request $request): Response
@@ -53,9 +63,11 @@ class JobController extends AbstractController
             $this->jobValidator->nameIsValid($name);
             $companyId = (int) $request->get('company_id');
             $company = $this->companyRepository->find($companyId);
-            
+
             if (is_null($company)) {
-                throw new \InvalidArgumentException('Could not find company with id: ' . $companyId);
+                throw new \InvalidArgumentException(
+                    'Could not find company with id: ' . $companyId
+                );
             }
 
             $job = new Jobs();
@@ -87,9 +99,8 @@ class JobController extends AbstractController
     }
 
     /**
-     * get all jobs from the database
+     * Get all jobs from the database
      *
-     * @param  mixed $doctrine
      * @return Response
      */
     public function readJobs(): Response
@@ -109,7 +120,7 @@ class JobController extends AbstractController
                 'company' => [
                     'id' => $job->getCompany()->getId(),
                     'company' => $job->getCompany()->getName()
-                    
+
                 ]
             ];
         }
@@ -125,9 +136,10 @@ class JobController extends AbstractController
     }
 
     /**
-     * gets the job by the ID
+     * Gets the job by the ID
      *
-     * @param  mixed $id
+     * @param mixed $id
+     *
      * @return Response
      */
     public function readJobsById(int $id): Response
@@ -152,12 +164,14 @@ class JobController extends AbstractController
                 ];
             }
 
-            return new JsonResponse([
+            return new JsonResponse(
+                [
                 'results' => [
-                    'error' =>false,
+                    'error' => false,
                     'jobs' => $jobsArr
                 ]
-            ]);
+                ]
+            );
         } catch (\Exception $e) {
             return new JsonResponse(
                 [
@@ -171,9 +185,10 @@ class JobController extends AbstractController
     }
 
     /**
-     * gets the job by the Name
+     * Gets the job by the Name
      *
-     * @param  mixed $name
+     * @param mixed $name
+     *
      * @return Response
      */
     public function readJobsByName(string $name): Response
@@ -193,17 +208,19 @@ class JobController extends AbstractController
                     'company' => [
                         'id' => $job->getCompany()->getId(),
                         'company' => $job->getCompany()->getName()
-                        
+
                     ]
                 ];
             }
 
-            return new JsonResponse([
+            return new JsonResponse(
+                [
                 'results' => [
-                    'error' =>false,
+                    'error' => false,
                     'jobs' => $jobsArr
                 ]
-            ]);
+                ]
+            );
         } catch (\Exception $e) {
             return new JsonResponse(
                 [
@@ -215,11 +232,12 @@ class JobController extends AbstractController
             );
         }
     }
-  
+
     /**
-     * read a job by the substring of the name
+     * Read a job by the substring of the name
      *
-     * @param  mixed $name
+     * @param mixed $name
+     *
      * @return Response
      */
     public function readJobsByNameLike(string $name): Response
@@ -239,17 +257,19 @@ class JobController extends AbstractController
                     'company' => [
                         'id' => $job->getCompany()->getId(),
                         'company' => $job->getCompany()->getName()
-                        
+
                     ]
                 ];
             }
-            
-            return new JsonResponse([
+
+            return new JsonResponse(
+                [
                 'results' => [
-                    'error' =>false,
+                    'error' => false,
                     'jobs' => $jobsArr
                 ]
-            ]);
+                ]
+            );
         } catch (\Exception $e) {
             return new JsonResponse(
                 [
@@ -263,10 +283,11 @@ class JobController extends AbstractController
     }
 
     /**
-     * updates a job from the database
+     * Updates a job from the database
      *
-     * @param  mixed $id
-     * @param  mixed $request
+     * @param mixed $id
+     * @param mixed $request
+     *
      * @return Response
      */
     public function updateJob(int $id, Request $request): Response
@@ -277,7 +298,7 @@ class JobController extends AbstractController
             if (!empty($name)) {
                 $this->jobValidator->nameIsValid($name);
             }
-            
+
             $requestParams = $request->query->all();
             $updateResult = $this->jobsRepository->update($id, $requestParams);
             return new JsonResponse(
@@ -301,9 +322,10 @@ class JobController extends AbstractController
     }
 
     /**
-     * delete a job from the database
+     * Delete a job from the database
      *
-     * @param  mixed $id
+     * @param mixed $id
+     *
      * @return Response
      */
     public function deleteJob(int $id): Response
@@ -311,17 +333,48 @@ class JobController extends AbstractController
         try {
             $this->jobValidator->idIsValid($id);
             $jobToDelete = $this->jobsRepository->find($id);
-            
             if (is_null($jobToDelete)) {
                 throw new \InvalidArgumentException('Could not find job with id: ' . $id);
             }
+
             $deletedId = $jobToDelete->getId();
             $this->jobsRepository->remove($jobToDelete);
-            return new JsonResponse([
+            return new JsonResponse(
+                [
                 'results' => [
                     'error' => false,
                     'job_deleted_id' => $deletedId,
                 ]
+                ]
+            );
+        } catch (\Exception $e) {
+            return new JsonResponse(
+                [
+                    'results' => [
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ]
+                ]
+            );
+        }
+    }
+
+    /**
+     * Add/update/delete from txt file
+     *
+     * @param mixed $request
+     *
+     * @return Response
+     */
+    public function bulk(Request $request): Response
+    {
+        try {
+            $data = $this->jobsService->saveBulkJobs();
+
+            return new JsonResponse([
+                "total jobs" => $data["total jobs"],
+                "valid jobs" => $data["valid jobs"],
+                "invalid_ obs" => $data["invalid jobs"]
             ]);
         } catch (\Exception $e) {
             return new JsonResponse(
